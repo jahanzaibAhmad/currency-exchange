@@ -6,17 +6,19 @@ import { CurrencyHomeComponent } from './currency-home/currency-home.component';
 import { CurrencyDetailComponent } from './currency-detail/currency-detail.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgbDropdownModule, NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
+import { CurrencyBlocksComponent } from './currency-blocks/currency-blocks.component';
 
 @NgModule({
   declarations: [
     CurrencyHomeComponent,
-    CurrencyDetailComponent
+    CurrencyDetailComponent,
+    CurrencyBlocksComponent
   ],
   imports: [
     CommonModule,
     CurrencyExchangeRoutingModule,
     ReactiveFormsModule,
-    NgbDropdownModule,
+    NgbDropdownModule
     // HttpClientModule
 
   ]

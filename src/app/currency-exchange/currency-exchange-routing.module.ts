@@ -9,8 +9,8 @@ const routes: Routes = [
     component: CurrencyHomeComponent
   },
   {
-    path: 'detail',
-    component: CurrencyDetailComponent
+    path: ':isDetail',
+    component: CurrencyHomeComponent
   },
 ];
 

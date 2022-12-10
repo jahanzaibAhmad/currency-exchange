@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ConstantService } from 'src/app/shared/constant.service';
 import { CurrencyExchangeService } from '../shared/currency-exchange.service';
 
 @Component({
@@ -9,48 +11,172 @@ import { CurrencyExchangeService } from '../shared/currency-exchange.service';
 })
 export class CurrencyHomeComponent implements OnInit {
   currencyForm!: FormGroup;
-  // currencyForm = this.formBuilder.group({
-  //   amount: [0, Validators.compose([
-  //     Validators.required,
-  //   ])],
-  //   from: [1],
-  //   to: [0],
-  // });
-
-  // departmentForm: FormGroup;
+  symbols: any = [];
+  currArray: any[] = [];
+  isDetail: boolean = false;
+  heading: string = 'Currency Exchanger';
+  lastRates: any;
+  isDetailBtn: boolean = false;
   constructor(
     private formBuilder: FormBuilder,
-    private currencyExchangeService : CurrencyExchangeService
+    private currencyExchangeService: CurrencyExchangeService,
+    public constantService: ConstantService,
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
   ) { }
 
   ngOnInit(): void {
+    // this.activatedRoute.params.subscribe((params: any) => {
+    //   this.isDetail = false;
+    //   if (params.isDetail == '1') {
+    //     this.isDetail = true;
+    //   } 
+    //   this.checkDetail();
+    //   console.log(params);
+    // });
     this.bindForm();
-    this.getTestDetail();
+    // this.getFixerDetail();
+    this.getSymbols();
+    const currArr = this.constantService.topCurrenciesArray;
+    this.currArray = this.constantService.detach(currArr);
   }
 
   /** Binding form */
   private bindForm() {
     this.currencyForm = this.formBuilder.group({
-      amount: [10, Validators.compose([
+      amount: [null, Validators.compose([
         Validators.required,
       ])],
-      fromCurrency: [11],
-      toCurrency: [21],
+      fromCurrency: ['EUR'],
+      toCurrency: ['USD'],
       convertionAmt: [''],
+      convertionAmtOnly: [''],
     });
+
+    this.enableDisableField();
   }
+
 
 
   get f(): { [key: string]: AbstractControl } {
     return this.currencyForm.controls;
   }
 
-  private getTestDetail() {
+  private getFixerDetail() {
     this.currencyExchangeService.getFixerDetail().subscribe(
       data => {
         console.log(data);
       });
   }
 
+  private getSymbols() {
+    this.currencyExchangeService.getSymbols().subscribe(
+      data => {
+
+        for (const property in data.symbols) {
+          let obj;
+          obj = { key: '', value: '' };
+          obj.key = property;
+          obj.value = data.symbols[property];
+          this.symbols = [...this.symbols, obj];
+        }
+      });
+  }
+
+  convert() {
+    const amount = +this.f['amount'].value;
+    const toCurr = this.f['toCurrency'].value;
+    const fromCurr = this.f['fromCurrency'].value;
+    let topCurr = this.constantService.topCurrencies;
+    topCurr = topCurr + ',' + toCurr;
+    this.currencyExchangeService.getConverstion(topCurr, fromCurr).subscribe(
+      data => {
+        if (data.rates) {
+          this.lastRates = data.rates;
+          this.setRates();
+          // this.currArray.forEach(element => {
+          //   element.rate = amount * data.rates[element.key];
+          // });
+        }
+        this.setTextBoxValue(toCurr, fromCurr, amount, data.rates[toCurr]);
+        this.isDetailBtn = true;
+      });
+  }
+
+  setRates(val?: number) {
+      const amount = +this.f['amount'].value;
+      this.currArray?.forEach(element => {
+        if (val == 0) {
+          element.rate = '';
+        } else {
+          if( this.lastRates){
+            element.rate = amount * this.lastRates?.[element.key];
+          }
+        }
+      });
+      if(val != 0 && this.lastRates){
+        const amount = +this.f['amount'].value;
+        const toCurr = this.f['toCurrency'].value;
+        const fromCurr = this.f['fromCurrency'].value;
+        this.setTextBoxValue(toCurr, fromCurr, amount, this.lastRates?.[toCurr]);
+      // this.f['convertionAmtOnly'].setValue((+this.lastRates[this.f['toCurrency'].value] * +amount) + toCurr);
+      }
+    }
+
+  enableDisableField() {
+    Object.keys(this.currencyForm.controls).forEach(key => {
+      if (key == 'amount') return;
+      if (this.currencyForm.invalid) {
+        this.f[key].disable();
+      } else {
+        this.f[key].enable();
+      }
+      if(this.isDetail){
+        this.f['fromCurrency'].disable();
+      }
+      this.setRates();
+    });
+  }
+
+  selectChange(){
+    this.lastRates = null;
+    this.setRates(0);
+    this.f['convertionAmt'].setValue(null);
+    this.f['convertionAmtOnly'].setValue((null));
+    if(this.isDetail){
+      this.convert();
+    } else {
+      this.isDetailBtn = false;
+    }
+  }
+
+
+  setTextBoxValue(toCurr: string, fromCurr: string, amount: number, rate: string) {
+    const value = 1 + ' ' + fromCurr + ' = ' + rate + ' ' + toCurr;
+    this.f['convertionAmt'].setValue(value);
+    const toVal = (+rate * +amount) + ' ' + toCurr;
+    this.f['convertionAmtOnly'].setValue(toVal);
+  }
+
+  toggleToFrom() {
+    const fromCurr = this.constantService.detach(this.f['fromCurrency'].value);
+    this.f['fromCurrency'].setValue(this.f['toCurrency'].value);
+    this.f['toCurrency'].setValue(fromCurr);
+    this.convert();
+  }
+
+  detail() {
+    this.isDetail = true;
+    this.f['fromCurrency'].disable();
+    const symbol = this.symbols.find((x: any) => x.key == this.f['fromCurrency'].value);
+    this.heading = '<strong>' + symbol.key + '</strong>' + ' - ' + symbol.value;
+
+  }
+
+  back() {
+    this.isDetail = false;
+    this.heading = 'Currency Exchanger';
+    this.f['fromCurrency'].enable();
+  }
 
 }
