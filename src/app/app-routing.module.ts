@@ -11,7 +11,6 @@ const routes: Routes = [
     path: 'app',
     loadChildren: () => import('./nav-menu/nav-menu.module').then(m => m.NavMenuModule)
   },
-  
 ];
 
 @NgModule({
