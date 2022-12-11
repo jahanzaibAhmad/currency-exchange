@@ -2,3 +2,17 @@
 
 /* Importing Bootstrap SCSS file. */
 @import '~bootstrap/scss/bootstrap';
+
+
+
+.head-form {
+    border: 1px solid #e3e3e3;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+span.invalid-span {
+    font-size: 13px;
+    color: red;
+    position: absolute;
+}

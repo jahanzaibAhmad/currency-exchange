@@ -77,7 +77,7 @@
     </form>
 
     <ng-container *ngIf="isDetail">
-        <app-currency-detail ></app-currency-detail>
+        <app-currency-detail [toCurrency]="this.f['toCurrency'].value" [fromCurrency]="this.f['fromCurrency'].value" ></app-currency-detail>
     </ng-container>
     <ng-container *ngIf="!isDetail">
         <app-currency-blocks [currArray]="currArray"></app-currency-blocks>

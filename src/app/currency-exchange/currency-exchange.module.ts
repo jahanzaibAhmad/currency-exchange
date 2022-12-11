@@ -7,6 +7,7 @@ import { CurrencyDetailComponent } from './currency-detail/currency-detail.compo
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgbDropdownModule, NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { CurrencyBlocksComponent } from './currency-blocks/currency-blocks.component';
+import { NgChartsModule } from 'ng2-charts';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { CurrencyBlocksComponent } from './currency-blocks/currency-blocks.compo
     CommonModule,
     CurrencyExchangeRoutingModule,
     ReactiveFormsModule,
-    NgbDropdownModule
+    NgbDropdownModule,
+    NgChartsModule
     // HttpClientModule
 
   ]
