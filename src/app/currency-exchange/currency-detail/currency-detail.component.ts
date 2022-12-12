@@ -1,8 +1,8 @@
 import { Component, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
 import { ChartConfiguration, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
-import { ConstantService } from 'src/app/shared/constant.service';
 import { CurrencyExchangeService } from '../shared/currency-exchange.service';
+import { ConstantService } from 'src/app/shared/services/constant.service';
 
 @Component({
   selector: 'app-currency-detail',

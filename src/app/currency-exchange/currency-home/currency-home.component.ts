@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ConstantService } from 'src/app/shared/constant.service';
+import { ConstantService } from 'src/app/shared/services/constant.service';
+import { SharedService } from 'src/app/shared/services/shared.service';
 import { CurrencyModel, CurrencySymbolModel } from '../shared/currency-exchange.model';
 import { CurrencyExchangeService } from '../shared/currency-exchange.service';
 
@@ -23,6 +24,7 @@ export class CurrencyHomeComponent implements OnInit {
     private formBuilder: FormBuilder,
     private currencyExchangeService: CurrencyExchangeService,
     public constantService: ConstantService,
+    public sharedService: SharedService,
   ) { }
 
   ngOnInit(): void {
@@ -31,12 +33,14 @@ export class CurrencyHomeComponent implements OnInit {
     this.getSymbols();
     const currArr = this.constantService.topCurrenciesArray;
     this.currArray = this.constantService.detach(currArr);
+    this.convert();
+    this.navDetail();
   }
 
   /** Binding form */
   private bindForm() {
     this.currencyForm = this.formBuilder.group({
-      amount: [null, Validators.compose([
+      amount: [1, Validators.compose([
         Validators.required,
       ])],
       fromCurrency: ['EUR'],
@@ -158,6 +162,20 @@ export class CurrencyHomeComponent implements OnInit {
     this.f['fromCurrency'].enable();
   }
 
+  navDetail(){
+    this.sharedService.btnDetailEmitter.subscribe(
+      data => {
+          this.btnDetail(data.fromCurrency, data.toCurrency);
+    });
+  }
+
+  btnDetail(from: string, to: string){
+    this.f['fromCurrency'].setValue(from);
+    this.f['toCurrency'].setValue(to);
+    this.f['amount'].setValue(1);
+    this.detail();
+    this.convert();
+  }
 
   private getFixerDetail() { // Sample API in Start to test
     this.currencyExchangeService.getFixerDetail().subscribe(
