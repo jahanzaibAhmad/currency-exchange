@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { ConstantService } from 'src/app/shared/services/constant.service';
 import { SharedService } from 'src/app/shared/services/shared.service';
 import { CurrencyModel, CurrencySymbolModel } from '../shared/currency-exchange.model';
@@ -11,7 +11,7 @@ import { CurrencyExchangeService } from '../shared/currency-exchange.service';
   templateUrl: './currency-home.component.html',
   styleUrls: ['./currency-home.component.scss']
 })
-export class CurrencyHomeComponent implements OnInit {
+export class CurrencyHomeComponent implements OnInit, OnDestroy {
   currencyForm!: FormGroup;
   symbols: CurrencySymbolModel[] = [];
   currArray: CurrencyModel[] = [];
@@ -20,6 +20,8 @@ export class CurrencyHomeComponent implements OnInit {
   lastRates: any; // As it has come with dynamic currencies i.e {AUD : 1.551932, USD : 1.051325}
 
   isDetailBtn: boolean = false;
+  private subscriptions: Subscription[] = [];
+
   constructor(
     private formBuilder: FormBuilder,
     private currencyExchangeService: CurrencyExchangeService,
@@ -57,7 +59,7 @@ export class CurrencyHomeComponent implements OnInit {
   }
 
   private getSymbols() {
-    this.currencyExchangeService.getSymbols().subscribe(
+    this.subscriptions.push(this.currencyExchangeService.getSymbols().subscribe(
       data => {
 
         for (const property in data.symbols) {
@@ -67,7 +69,7 @@ export class CurrencyHomeComponent implements OnInit {
           obj.value = data.symbols[property];
           this.symbols = [...this.symbols, obj];
         }
-      });
+      }));
   }
 
   convert() {
@@ -76,7 +78,7 @@ export class CurrencyHomeComponent implements OnInit {
     const fromCurr = this.f['fromCurrency'].value;
     let topCurr = this.constantService.topCurrencies;
     topCurr = topCurr + ',' + toCurr;
-    this.currencyExchangeService.getConverstion(topCurr, fromCurr).subscribe(
+    this.subscriptions.push(this.currencyExchangeService.getConverstion(topCurr, fromCurr).subscribe(
       data => {
         if (data.rates) {
           this.lastRates = data.rates;
@@ -84,7 +86,7 @@ export class CurrencyHomeComponent implements OnInit {
         }
         this.setTextBoxValue(toCurr, fromCurr, amount, data.rates[toCurr]);
         this.isDetailBtn = true;
-      });
+      }));
   }
 
   setRates(val?: number) {
@@ -162,14 +164,14 @@ export class CurrencyHomeComponent implements OnInit {
     this.f['fromCurrency'].enable();
   }
 
-  navDetail(){
-    this.sharedService.btnDetailEmitter.subscribe(
+  navDetail() {
+    this.subscriptions.push(this.sharedService.btnDetailEmitter.subscribe(
       data => {
-          this.btnDetail(data.fromCurrency, data.toCurrency);
-    });
+        this.btnDetail(data.fromCurrency, data.toCurrency);
+      }));
   }
 
-  btnDetail(from: string, to: string){
+  btnDetail(from: string, to: string) {
     this.f['fromCurrency'].setValue(from);
     this.f['toCurrency'].setValue(to);
     this.f['amount'].setValue(1);
@@ -178,11 +180,14 @@ export class CurrencyHomeComponent implements OnInit {
   }
 
   private getFixerDetail() { // Sample API in Start to test
-    this.currencyExchangeService.getFixerDetail().subscribe(
+    this.subscriptions.push(this.currencyExchangeService.getFixerDetail().subscribe(
       data => {
         console.log(data);
-      });
+      }));
   }
 
+  ngOnDestroy() {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+  }
 
 }

@@ -1,15 +1,16 @@
-import { Component, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ChartConfiguration, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { CurrencyExchangeService } from '../shared/currency-exchange.service';
 import { ConstantService } from 'src/app/shared/services/constant.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-currency-detail',
   templateUrl: './currency-detail.component.html',
   styleUrls: ['./currency-detail.component.scss']
 })
-export class CurrencyDetailComponent implements OnInit, OnChanges {
+export class CurrencyDetailComponent implements OnInit, OnChanges, OnDestroy {
 
   /** Dates are hard coded, may use date picker depends on requirement
    * Its a sample chart we can use different chart for showing results
@@ -18,11 +19,12 @@ export class CurrencyDetailComponent implements OnInit, OnChanges {
   @Input() fromCurrency: string = '';
   @Input() toCurrency: string = '';
   @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+  private subscriptions: Subscription[] = [];
 
   public lineChartData: ChartConfiguration['data'] = {
     datasets: [
       {
-        data: [  ],
+        data: [],
         label: this.toCurrency,
         backgroundColor: 'rgba(148,159,177,0.2)',
         borderColor: 'rgba(148,159,177,1)',
@@ -33,7 +35,7 @@ export class CurrencyDetailComponent implements OnInit, OnChanges {
         fill: 'origin',
       }
     ],
-    labels: [  ]
+    labels: []
   };
 
   public lineChartOptions: ChartConfiguration['options'] = {
@@ -45,9 +47,9 @@ export class CurrencyDetailComponent implements OnInit, OnChanges {
     scales: {
       // We use this empty structure as a placeholder for dynamic theming.
       y:
-        {
-          position: 'left',
-        },
+      {
+        position: 'left',
+      },
       y1: {
         position: 'right',
         grid: {
@@ -61,12 +63,12 @@ export class CurrencyDetailComponent implements OnInit, OnChanges {
   };
 
   public lineChartType: ChartType = 'line';
-  lastDatesArray:string[] = [];
+  lastDatesArray: string[] = [];
 
   constructor(
     private currencyExchangeService: CurrencyExchangeService,
     public constantService: ConstantService
-  ) { 
+  ) {
 
 
   }
@@ -83,7 +85,7 @@ export class CurrencyDetailComponent implements OnInit, OnChanges {
   }
 
   getChart() {
-    this.currencyExchangeService.getChart(this.toCurrency, this.fromCurrency, this.lastDatesArray).subscribe(
+    this.subscriptions.push(this.currencyExchangeService.getChart(this.toCurrency, this.fromCurrency, this.lastDatesArray).subscribe(
       data => {
         console.log(data);
         let lineData: number[] = [];
@@ -95,7 +97,7 @@ export class CurrencyDetailComponent implements OnInit, OnChanges {
         });
         this.setLineData(lineData, labels);
 
-      });
+      }));
   }
 
   setLineData(lineData: number[], labels: string[]) {
@@ -105,6 +107,8 @@ export class CurrencyDetailComponent implements OnInit, OnChanges {
     this.chart?.update();
   }
 
-  
+  ngOnDestroy() {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+  }
 
 }
