@@ -11,6 +11,10 @@ import { CurrencyExchangeService } from '../shared/currency-exchange.service';
 })
 export class CurrencyDetailComponent implements OnInit, OnChanges {
 
+  /** Dates are hard coded, may use date picker depends on requirement
+   * Its a sample chart we can use different chart for showing results
+   */
+
   @Input() fromCurrency: string = '';
   @Input() toCurrency: string = '';
   @ViewChild(BaseChartDirective) chart?: BaseChartDirective;

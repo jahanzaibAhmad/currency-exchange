@@ -7,7 +7,8 @@ import { CurrencyModel } from '../shared/currency-exchange.model';
   styleUrls: ['./currency-blocks.component.scss']
 })
 export class CurrencyBlocksComponent implements OnInit {
-
+  /** It will act as a Dump component */
+  
   @Input() currArray: CurrencyModel[] = [];
   constructor() { }
 

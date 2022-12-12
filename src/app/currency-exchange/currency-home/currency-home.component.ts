@@ -17,7 +17,7 @@ export class CurrencyHomeComponent implements OnInit {
   isDetail: boolean = false;
   heading: string = 'Currency Exchanger';
   lastRates: any; // As it has come with dynamic currencies i.e {AUD : 1.551932, USD : 1.051325}
-  
+
   isDetailBtn: boolean = false;
   constructor(
     private formBuilder: FormBuilder,
@@ -26,16 +26,8 @@ export class CurrencyHomeComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // this.activatedRoute.params.subscribe((params: any) => {
-    //   this.isDetail = false;
-    //   if (params.isDetail == '1') {
-    //     this.isDetail = true;
-    //   } 
-    //   this.checkDetail();
-    //   console.log(params);
-    // });
     this.bindForm();
-    // this.getFixerDetail();
+    // this.getFixerDetail(); // Sample API in Start to test
     this.getSymbols();
     const currArr = this.constantService.topCurrenciesArray;
     this.currArray = this.constantService.detach(currArr);
@@ -56,17 +48,8 @@ export class CurrencyHomeComponent implements OnInit {
     this.enableDisableField();
   }
 
-
-
   get f(): { [key: string]: AbstractControl } {
     return this.currencyForm.controls;
-  }
-
-  private getFixerDetail() {
-    this.currencyExchangeService.getFixerDetail().subscribe(
-      data => {
-        console.log(data);
-      });
   }
 
   private getSymbols() {
@@ -101,24 +84,23 @@ export class CurrencyHomeComponent implements OnInit {
   }
 
   setRates(val?: number) {
-      const amount = +this.f['amount'].value;
-      this.currArray?.forEach(element => {
-        if (val == 0) {
-          element.rate = 0;
-        } else {
-          if( this.lastRates){
-            element.rate = amount * this.lastRates?.[element.key];
-          }
+    const amount = +this.f['amount'].value;
+    this.currArray?.forEach(element => {
+      if (val == 0) {
+        element.rate = 0;
+      } else {
+        if (this.lastRates) {
+          element.rate = amount * this.lastRates?.[element.key];
         }
-      });
-      if(val != 0 && this.lastRates){
-        const amount = +this.f['amount'].value;
-        const toCurr = this.f['toCurrency'].value;
-        const fromCurr = this.f['fromCurrency'].value;
-        this.setTextBoxValue(toCurr, fromCurr, amount, this.lastRates?.[toCurr]);
-      // this.f['convertionAmtOnly'].setValue((+this.lastRates[this.f['toCurrency'].value] * +amount) + toCurr);
       }
+    });
+    if (val != 0 && this.lastRates) {
+      const amount = +this.f['amount'].value;
+      const toCurr = this.f['toCurrency'].value;
+      const fromCurr = this.f['fromCurrency'].value;
+      this.setTextBoxValue(toCurr, fromCurr, amount, this.lastRates?.[toCurr]);
     }
+  }
 
   enableDisableField() {
     Object.keys(this.currencyForm.controls).forEach(key => {
@@ -128,19 +110,19 @@ export class CurrencyHomeComponent implements OnInit {
       } else {
         this.f[key].enable();
       }
-      if(this.isDetail){
+      if (this.isDetail) {
         this.f['fromCurrency'].disable();
       }
       this.setRates();
     });
   }
 
-  selectChange(){
+  selectChange() {
     this.lastRates = null;
     this.setRates(0);
     this.f['convertionAmt'].setValue(null);
     this.f['convertionAmtOnly'].setValue((null));
-    if(this.isDetail){
+    if (this.isDetail) {
       this.convert();
     } else {
       this.isDetailBtn = false;
@@ -175,5 +157,14 @@ export class CurrencyHomeComponent implements OnInit {
     this.heading = 'Currency Exchanger';
     this.f['fromCurrency'].enable();
   }
+
+
+  private getFixerDetail() { // Sample API in Start to test
+    this.currencyExchangeService.getFixerDetail().subscribe(
+      data => {
+        console.log(data);
+      });
+  }
+
 
 }
