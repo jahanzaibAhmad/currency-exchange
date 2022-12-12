@@ -61,7 +61,7 @@
                     <input type="text" class="form-control  mt-4" placeholder="" formControlName="convertionAmt">
                 </div>
             </div>
-            <div class="col-4">
+            <div [class]="isDetail? 'col-8' : 'col-4'" >
                 <div class="form-group">
                     <textarea type="text" class="form-control ta" placeholder="" formControlName="convertionAmtOnly"
                         rows="2"> </textarea>
@@ -69,7 +69,7 @@
                 </div>
             </div>
 
-            <div class="col-4">
+            <div class="col-4" *ngIf="!isDetail">
                 <button class="btn btn-primary w-100 mt-4" type="submit" (click)="detail()" [disabled]="currencyForm.invalid || !isDetailBtn">More Details</button>
             </div>
         </div>
