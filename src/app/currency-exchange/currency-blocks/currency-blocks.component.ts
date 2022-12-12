@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { CurrencyModel } from '../shared/currency-exchange.model';
 
 @Component({
   selector: 'app-currency-blocks',
@@ -7,7 +8,7 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class CurrencyBlocksComponent implements OnInit {
 
-  @Input() currArray: any;
+  @Input() currArray: CurrencyModel[] = [];
   constructor() { }
 
   ngOnInit(): void {

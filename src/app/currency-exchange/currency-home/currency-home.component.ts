@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConstantService } from 'src/app/shared/constant.service';
+import { CurrencyModel, CurrencySymbolModel } from '../shared/currency-exchange.model';
 import { CurrencyExchangeService } from '../shared/currency-exchange.service';
 
 @Component({
@@ -11,18 +12,17 @@ import { CurrencyExchangeService } from '../shared/currency-exchange.service';
 })
 export class CurrencyHomeComponent implements OnInit {
   currencyForm!: FormGroup;
-  symbols: any = [];
-  currArray: any[] = [];
+  symbols: CurrencySymbolModel[] = [];
+  currArray: CurrencyModel[] = [];
   isDetail: boolean = false;
   heading: string = 'Currency Exchanger';
-  lastRates: any;
+  lastRates: any; // As it has come with dynamic currencies i.e {AUD : 1.551932, USD : 1.051325}
+  
   isDetailBtn: boolean = false;
   constructor(
     private formBuilder: FormBuilder,
     private currencyExchangeService: CurrencyExchangeService,
     public constantService: ConstantService,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
   ) { }
 
   ngOnInit(): void {
@@ -94,9 +94,6 @@ export class CurrencyHomeComponent implements OnInit {
         if (data.rates) {
           this.lastRates = data.rates;
           this.setRates();
-          // this.currArray.forEach(element => {
-          //   element.rate = amount * data.rates[element.key];
-          // });
         }
         this.setTextBoxValue(toCurr, fromCurr, amount, data.rates[toCurr]);
         this.isDetailBtn = true;
@@ -107,7 +104,7 @@ export class CurrencyHomeComponent implements OnInit {
       const amount = +this.f['amount'].value;
       this.currArray?.forEach(element => {
         if (val == 0) {
-          element.rate = '';
+          element.rate = 0;
         } else {
           if( this.lastRates){
             element.rate = amount * this.lastRates?.[element.key];
@@ -168,8 +165,8 @@ export class CurrencyHomeComponent implements OnInit {
   detail() {
     this.isDetail = true;
     this.f['fromCurrency'].disable();
-    const symbol = this.symbols.find((x: any) => x.key == this.f['fromCurrency'].value);
-    this.heading = '<strong>' + symbol.key + '</strong>' + ' - ' + symbol.value;
+    const symbol = this.symbols.find((x: CurrencySymbolModel) => x.key == this.f['fromCurrency'].value);
+    this.heading = '<strong>' + symbol?.key + '</strong>' + ' - ' + symbol?.value;
 
   }
 
