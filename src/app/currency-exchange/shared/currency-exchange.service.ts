@@ -24,14 +24,16 @@ export class CurrencyExchangeService {
 
   getConverstion(symbols: string, base: string): Observable<any> {
     /** return this.http.get('assets/json/test.json');  */ // Saved value in JSON to save API calls in Development
+    // return this.http.get('assets/json/test.json');
     var myHeaders = new HttpHeaders().set('apikey', environment.fixedApiKey); //Todo: May use intercepter to add key in header
     return this.http.get(`https://api.apilayer.com/fixer/latest?symbols=${symbols}&base=${base}`, { headers: myHeaders });
   }
 
-  getChart(symbols: string, base: string): Observable<any> {
+  getChart(symbols: string, base: string, lastDatesArray:string[]): Observable<any> {
     /** return this.http.get('assets/json/testtwo.json');  */ // Saved value in JSON to save API calls in Development
+    // return this.http.get('assets/json/testtwo.json');
     var myHeaders = new HttpHeaders().set('apikey', environment.fixedApiKey); //Todo: May use intercepter to add key in header
-    return this.http.get(`https://api.apilayer.com/fixer/timeseries?symbols=${symbols}&base=${base}&start_date=2022-12-01&end_date=2022-12-30`, { headers: myHeaders });
+    return this.http.get(`https://api.apilayer.com/fixer/timeseries?symbols=${symbols}&base=${base}&start_date=${lastDatesArray[0]}&end_date=${lastDatesArray[lastDatesArray.length-1]}`, { headers: myHeaders });
   }
 
 

@@ -14,7 +14,7 @@ export class ConstantService {
 
   constructor() { }
 
-  detach(data: any){
+  detach(data: any) {
     return JSON.parse(JSON.stringify(data));
   }
 
@@ -28,6 +28,43 @@ export class ConstantService {
   numberOnly(event: any): boolean {
     /* restrict character keys, allow only numbers */
     return this.onlyCharKey(event) ? false : true;
+  }
+
+
+  getLastDateOfEachMonth(): string[] {
+    let array: string[] = [];
+    for (let i = 0; i < 12; i++) {
+      const m = i ;
+      var date = new Date(), y = date.getFullYear();//, m = date.getMonth();
+      const currentMonth = date.getMonth() + 1;
+      if (m <= currentMonth) {
+        var lastDay = new Date(y, m + 1, 0);
+        if (lastDay > new Date()) {
+          lastDay = new Date();
+          const formattedDate = this.formatDate(lastDay);
+          array = [...array, formattedDate];
+          break;
+        }
+        const formattedDate = this.formatDate(lastDay);
+        array = [...array, formattedDate];
+      }
+    }
+    return array;
+  }
+
+
+  formatDate(date: Date) {
+    var d = new Date(date),
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2)
+      month = '0' + month;
+    if (day.length < 2)
+      day = '0' + day;
+
+    return [year, month, day].join('-');
   }
 
 

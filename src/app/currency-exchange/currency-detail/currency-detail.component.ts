@@ -61,6 +61,7 @@ export class CurrencyDetailComponent implements OnInit, OnChanges {
   };
 
   public lineChartType: ChartType = 'line';
+  lastDatesArray:string[] = [];
 
   constructor(
     private currencyExchangeService: CurrencyExchangeService,
@@ -75,21 +76,22 @@ export class CurrencyDetailComponent implements OnInit, OnChanges {
 
 
   ngOnChanges(): void {
-    this.getChart();
+    this.lastDatesArray = this.constantService.getLastDateOfEachMonth();
+    setTimeout(() => {
+      this.getChart();
+    }, 1000);
   }
 
   getChart() {
-    this.currencyExchangeService.getChart(this.toCurrency, this.fromCurrency).subscribe(
+    this.currencyExchangeService.getChart(this.toCurrency, this.fromCurrency, this.lastDatesArray).subscribe(
       data => {
         console.log(data);
         let lineData: number[] = [];
         let labels: string[] = [];
-        Object.keys(data.rates).forEach(key => {
-          console.log(key);
-          console.log(data[key]);
-          const val = data.rates[key][this.toCurrency];
+        this.lastDatesArray.forEach((date: string) => {
+          const val = data.rates[date][this.toCurrency];
           lineData = [...lineData, val];
-          labels = [...labels, key];
+          labels = [...labels, date];
         });
         this.setLineData(lineData, labels);
 
